@@ -35,7 +35,7 @@ In order to create a post, a user must login and authenticate via JWT code.
 
 The administration function gives the ultimate service when a non-specific instance is operating. (The choice to put it in views , as a connection phase declined, due to two reasons: views distribute the functionality, not a platform to operate it, furthermore that it is only one app. It can be considered otherwise for multi connected apps that use these utilities, also.
 
-In order to use clearbir and hunter tokens are used.
+In order to use clearbir and hunter tokens are used. The keys:my_hunter_api_key and clearbit.key on models file, are needed to be handle independently when a clone is done.
 Each phase ende with maximum verification of synocronysem, between tables on the SERVER and in between SERVER and BOT.
 
 BOT 
