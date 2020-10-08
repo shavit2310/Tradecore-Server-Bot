@@ -85,8 +85,8 @@ DB:             Usen inner Django sqLite DB.
 Authentication: On user creation a JWT code is determined. For each activity a login is required, once, at the beginning. Only one user is activated in the system,  so  
                 logout functionality is not required. 
 Handle errors:  Mostly handled by logging on the warning level. As a decision only mismatch data consistency between models on the server or between the server and the BOT 
-                causes to  raise a critical  severity error. In a definition error in the server side not necessarily should receive the same severity, as in the BOT side,
-                due to differences rolls.Errors prompt twice, on general message of the action status and a specific related user & post & like on board.
+                causes to  raise a critical severity error. In a definition error in the server side not necessarily should receive the same severity, as in the BOT side,
+                due to differences rolls. Each error prompt twice, on general message of the action status and second time for specific related user & post & like on board.
 Config file:    This is of .py type, which brings some flexibility to import, approach the configuration params as variables, that can be changed during the progress of the                 program, (has its downsides) and contains other defined parameters.
 Complexity:     Aspects of this issue leads to order the list of users & posts to_be_liked in descending order, prior to activity, so the rule of likelihood activity order 
                 will be maintained in less time and computer consuming. Other aspects of complexity were not taken under consideration, and is a places to improve.
