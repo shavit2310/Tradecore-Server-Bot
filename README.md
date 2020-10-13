@@ -65,16 +65,14 @@ The BOT manipulates the server on 3 separate phases, which the BOT interacts on 
 
                  create                                         login                                     Notes
 
-User              Creation fails on server->instance del                                                   Number of users up to max_users from config file.
+User: Create: Creation fails on server->instance del. General nontes: Number of users up to max_users from config file.
 ______________________________________________________________________________________________________________________________________________________
-Post              Creation fails on server->instance del.        Fails on login to server->instance del.   Handling inconsistency between 2 components or mismatches in                                                                                                              the Bot:  
-                  Append element to post_per_likes_list.                                                   Append element to post_per_likes_list, post_id = -1.
-                                                                                                           Number of posts defined on user creation, up to max_posts from                                                                                                            config file.    _______________________________________________________________________________________________________________________________________________________                                                                                                                                                                                  
-Like              Creation fails on server->instance will        Continue to next                          Number of likes are defined on user creation from config file.
-                  not deleted, there are  posts already.                                                   Must match max_likes or other stop flags.
-                  Update element to post_per_likes_list.
-
-
+Post: Create: Creation fails on server->instance del. Append element to post_per_likes_list. Login:Fails on login to server->instance del.
+      General nontes: Handling inconsistency between 2 components or mismatches in the Bot: Append element to post_per_likes_list, post_id = -1.
+      Number of posts defined on user creation, up to max_posts from config file.  
+_______________________________________________________________________________________________________________________________________________________                    Like: Create: Creation fails on server->instance will not deleted, there are posts alread Update element to post_per_likes_list. Login: Continue to next. 
+      General nontes: Number of likes are defined on user creation from config file. Must match max_likes or other stop flags.
+                 
 
 -Decisions & assumption:
 
