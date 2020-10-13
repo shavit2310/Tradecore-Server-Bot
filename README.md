@@ -32,6 +32,7 @@ Like: 3 fields(properties) user (FK to User), post(FK to Post),like_text.
 Method of create_like (do_like), method of delete like(do_unlike) which enforces number_of_likes increment\decrement in Post related class.
 In order to create a post, a user must login and authenticate via JWT code.
 
+* This implementation of one2many between User:Post tables and one2one Like:{Post&User} could have a many2many field in Post table, and no need of the Like table. But then an extra data on each like that is done, avoided. 
 The administration function gives the ultimate service when a non-specific instance is operating. (The choice to put it in views , as a connection phase declined, due to two reasons: views distribute the functionality, not a platform to operate it, furthermore that it is only one app. It can be considered otherwise for multi connected apps that use these utilities, also.
 
 In order to use clearbir and hunter tokens are used. it is from https://hunter.io and  (https://clearbit.com/enrichment). needed to be add when clone is done.
