@@ -1,8 +1,8 @@
 # This is BOT config file
 
-number_of_users = 2
-max_posts_per_user = 4
-max_likes_per_user = 5
+number_of_users = 3
+max_posts_per_user = 7
+max_likes_per_user = 10
 
 '''Bank of optional users'''
 mail_bank_list = ['alex@clearbit.com', 'anat@eby.co.il', 'jobs@twingo.com', 'libat.gold@solaredge.com',
@@ -13,6 +13,8 @@ mail_bank_list = ['alex@clearbit.com', 'anat@eby.co.il', 'jobs@twingo.com', 'lib
 URL ="{APP_URL}:{APP_PORT}".format(APP_URL='http://127.0.0.1',APP_PORT = '8000')
 
 users = []  # List of actual created users in Server(DB)
+new_line = '\n'
+
 
 class BOT_ERROR_FINISHED(Exception):
     #print('No users to create')
@@ -20,7 +22,7 @@ class BOT_ERROR_FINISHED(Exception):
 
 
 class BOT_FINISHED(Exception):
-    #print('All likes distributed, and all users has no posts witn 0 likes')
+    #print('No users with 0 likes left or likes to do')
     pass
 
 
@@ -36,7 +38,6 @@ class CRITICAL_IN_ERROR(Exception):
     post per user likes numerator failed or
     user likes numerator failed to updated'''
     #print (f'In server\DB a new object was created. Failed to update fully in BOT')
-    #print(f'In server\DB a new action taken, in addition, partial update taken in BOT')
 
     pass
 
