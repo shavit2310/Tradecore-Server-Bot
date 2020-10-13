@@ -63,7 +63,7 @@ The BOT manipulates the server on 3 separate phases, which the BOT interacts on 
 
 - After each action on the server, consistent updates were taken to match the recent updates.
 
-                 create                                         login                                     Notes
+ START:             create                                         login                                     Notes
 
 User: Create: Creation fails on server->instance del. General nontes: Number of users up to max_users from config file.
 ______________________________________________________________________________________________________________________________________________________
@@ -73,6 +73,7 @@ Post: Create: Creation fails on server->instance del. Append element to post_per
 _______________________________________________________________________________________________________________________________________________________                    Like: Create: Creation fails on server->instance will not deleted, there are posts alread Update element to post_per_likes_list. Login: Continue to next. 
       General nontes: Number of likes are defined on user creation from config file. Must match max_likes or other stop flags.
                  
+END:                  create                                         login                                     Notes
 
 -Decisions & assumption:
 
