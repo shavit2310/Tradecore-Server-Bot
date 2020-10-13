@@ -63,16 +63,16 @@ The BOT manipulates the server on 3 separate phases, which the BOT interacts on 
 
 - After each action on the server, consistent updates were taken to match the recent updates.
 
-       create                                         login                                     Notes
+                 create                                         login                                     Notes
 
-User   Creation fails on server->instance del                                                   Number of users up to max_users from config file.
+User              Creation fails on server->instance del                                                   Number of users up to max_users from config file.
 ______________________________________________________________________________________________________________________________________________________
-Post   Creation fails on server->instance del.        Fails on login to server->instance del.   Handling inconsistency between 2 components or mismatches in  the Bot:  
-       Append element to post_per_likes_list.                                                   Append element to post_per_likes_list, post_id = -1.
-                                                                                                Number of posts defined on user creation, up to max_posts from config file.    _______________________________________________________________________________________________________________________________________________________                                                                                                                                                                                  
-Like   Creation fails on server->instance will        Continue to next                          Number of likes are defined on user creation from config file.
-       not deleted, there are  posts already.                                                   Must match max_likes or other stop flags.
-       Update element to post_per_likes_list.
+Post              Creation fails on server->instance del.        Fails on login to server->instance del.   Handling inconsistency between 2 components or mismatches in                                                                                                              the Bot:  
+                  Append element to post_per_likes_list.                                                   Append element to post_per_likes_list, post_id = -1.
+                                                                                                           Number of posts defined on user creation, up to max_posts from                                                                                                            config file.    _______________________________________________________________________________________________________________________________________________________                                                                                                                                                                                  
+Like              Creation fails on server->instance will        Continue to next                          Number of likes are defined on user creation from config file.
+                  not deleted, there are  posts already.                                                   Must match max_likes or other stop flags.
+                  Update element to post_per_likes_list.
 
 
 
@@ -86,11 +86,12 @@ DB:             Usen inner Django sqLite DB.
 Authentication: On user creation a JWT code is determined. For each activity a login is required, once, at the beginning. Only one user is activated in the system,  so  
                 logout functionality is not required. 
 Handle errors:  Mostly handled by logging on the warning level. As a decision only mismatch data consistency between models on the server or between the server and the BOT 
-                causes to  raise a critical severity error. In a definition error in the server side not necessarily should receive the same severity, as in the BOT side,
-                due to differences rolls. Each error prompt twice, on general message of the action status and second time for specific related user & post & like on board.
-Config file:    This is of .py type, which brings some flexibility to import, approach the configuration params as variables, that can be changed during the progress of the                 program, (has its downsides) and contains other defined parameters.
-Complexity:     Aspects of this issue leads to order the list of users & posts to_be_liked in descending order, prior to activity, so the rule of likelihood activity order 
-                will be maintained in less time and computer consuming. Other aspects of complexity were not taken under consideration, and is a places to improve.
+                causes to  raise a critical severity error. In a definition error in the server side not necessarily should receive the same severity, as in the BOT    
+                side,due to differences rolls. Each error prompt twice, on general message of the action status and second time for specific related user & post & like 
+                on board.
+Config file:    This is of .py type, which brings some flexibility to import, approach the configuration params as variables, that can be changed during the progress of                 the program, (has its downsides) and contains other defined parameters.
+Complexity:     Aspects of this issue leads to order the list of users & posts to_be_liked in descending order, prior to activity, so the rule of likelihood activity  
+                order will be maintained in less time and computer consuming. Other aspects of complexity were not taken under consideration, and is a places to improve.
 
 Furthermore improvements:
     -  A. improve Complexity. B. Segment limitation error to handle. C. Rollback when commit is 
