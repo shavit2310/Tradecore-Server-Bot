@@ -121,7 +121,7 @@ def main():
 
                 '''' End of BOT action check & update status '''
                 if is_final(match_all_likes, zero_list_flag,users_list_holds_posts):
-                    raise BOT_FINISHED('No users with 0 likes left, or likes to do'.....)
+                    raise BOT_FINISHED('No users with 0 likes left, or likes to do')
 
                 ''' Number of max Likes per user for this iteration '''
                 if not match_all_likes[users.index(current_candidate)]:
