@@ -16,8 +16,8 @@ def print_chao(name):
 
 ###################### JWT related functions ###############################
 
-def decode(verif_code):
-    ''' Decode JWT code to user mail & user id '''
+def _decode(verif_code):
+    """ Decode JWT code to user mail & user id """
     try:
         jwt_code = jwt.decode(verif_code, 'secret', algorithms=['HS256'])
         if not jwt_code:
@@ -31,10 +31,10 @@ def decode(verif_code):
         return -1, -1
 
 
-def encode(mail, id):
-    ''' Encode JWT from user mail & user id '''
+def _encode(mail, user_id):
+    """ Encode JWT from user mail & user id """
     try:
-        jwt_code = jwt.encode({mail: id}, 'secret', algorithm='HS256')
+        jwt_code = jwt.encode({mail: user_id}, 'secret', algorithm='HS256')
         if not jwt_code:
             raise Exception('JWT code not created')
         else:
@@ -49,8 +49,8 @@ def encode(mail, id):
 # Produce users with at least 1 post with 0 likes ###############################
 
 def zero_post(list_op_likes, current_candidate):
-    ''' Descending order list of all users with at least 1 post with 0 likes
-    list_op_liks is of the form: list of User class, current_candidate is a single User class '''
+    """ Descending order list of all users with at least 1 post with 0 likes
+    list_op_likes is of the form: list of User class, current_candidate is a single User class """
     built_up_list = []
     try:
         users_list_holds_posts = []
@@ -58,13 +58,13 @@ def zero_post(list_op_likes, current_candidate):
         for elem in list_op_likes:
             if elem != current_candidate:
                 '''Pick all users who own, at least 1 post with 0likes, (exclude current)'''
-                if _post_per_likes_serach(elem.post_per_likes_list, []):
+                if _post_per_likes_search(elem.post_per_likes_list, []):
                     built_up_list = _users_by_post_for_likelihood_expand(elem, built_up_list)
                     continue
 
         '''No posts under the criteria'''
         if not built_up_list:
-            raise Exception(f'No posts for user {current_candidate.id}  to perform like or unlike')
+            raise Exception(f'For {current_candidate.id}  there are no posts to perform likelihoods action')
 
         # Extract all user posts
         for j in built_up_list:
@@ -82,8 +82,12 @@ def zero_post(list_op_likes, current_candidate):
 
 # Produce total list of all related users posts out of zero list#################
 
-def _users_by_post_for_likelihood_expand(new_user, list_of_users, opt_list_users=[]):
-    ''' Desc users by no of posts'''
+def _users_by_post_for_likelihood_expand(new_user, list_of_users):  # , opt_list_users=None
+    """ Desc users by no of posts"""
+    opt_list_users = []
+
+    if list_of_users is None:
+        return opt_list_users.append(new_user)
     try:
         if not list_of_users:
             '''Empty from previous iteration'''
@@ -111,7 +115,7 @@ def _users_by_post_for_likelihood_expand(new_user, list_of_users, opt_list_users
 
 
 def _extract_posts_per_user(user_id, posts_list):
-    '''For each user, load all posts'''
+    """For each user, load all posts"""
     try:
         tmp = []
         for i in posts_list:
@@ -127,15 +131,13 @@ def _extract_posts_per_user(user_id, posts_list):
 # Choose posts randomly and decide action-like\unlike ###########################
 
 def choose_posts(list_of_users_op_to_like, current_candidate, current_max_likes=0):
-    '''Randomly chose from zero list posts. data form: Chosen_posts =>{user_id:post_id}'''
+    """Randomly chose from zero list posts. data form: Chosen_posts =>{user_id:post_id}"""
     chosen_list = []
     action_list = []
 
     try:
         while current_max_likes and list_of_users_op_to_like:
             '''Zero list not empty and post list is not match likes required for  this iteration '''
-
-            index = 0
 
             if not (len(list_of_users_op_to_like) < 2):
                 '''Solve empty range for randrange() (0, 0, 0) '''
@@ -151,8 +153,6 @@ def choose_posts(list_of_users_op_to_like, current_candidate, current_max_likes=
         ''' Action choose procedure: do_unlike for posts already liked by current candidate. other: do_like 
             Action_list data form   => [unlike/like:{user_id:post_id}] '''
 
-        print_chosen_post_list(current_candidate, chosen_list, 'before action assignment')
-
         if chosen_list:
             action_list = _divide_by_action(chosen_list, current_candidate)
 
@@ -164,8 +164,8 @@ def choose_posts(list_of_users_op_to_like, current_candidate, current_max_likes=
 
 
 def _divide_by_action(chosen_posts_list, current_candidate):
-    ''' Current user likelihood action, by post
-     data from the form of: {action:{current_user:[chosen_list]}}'''
+    """ Current user likelihood action, by post
+     data from the form of: {action:{current_user:[chosen_list]}}"""
 
     try:
         action_list = []
@@ -187,8 +187,8 @@ def _divide_by_action(chosen_posts_list, current_candidate):
             else:
                 action_key = dict.fromkeys(['like'], 0)
 
-            action_list.append(action_key)  # Exmpl: [{unlike}:{683:0}]
-            '''Handle the 'value' of dictionary '''  # Exmpl: [{unlike}:{683:[5:76,8:7,9:88]}]
+            action_list.append(action_key)  # Exmp: [{unlike}:{683:0}]
+            '''Handle the 'value' of dictionary '''  # Exmp: [{unlike}:{683:[5:76,8:7,9:88]}]
             action_list[chosen_post][list(action_list[chosen_post])[0]] = chosen_posts_list[chosen_post]
 
         return action_list
@@ -203,7 +203,7 @@ def _divide_by_action(chosen_posts_list, current_candidate):
 
 
 def _retrieve_user(user_id):
-    '''User instance from given id'''
+    """User instance from given id"""
     try:
         for tmp in users:
             if user_id == tmp.id:
@@ -214,8 +214,8 @@ def _retrieve_user(user_id):
         return type(e).__name__
 
 
-def _post_per_likes_serach(likes_per_post, operand):
-    '''Search on list post_per_likes if post has 0 likes'''
+def _post_per_likes_search(likes_per_post, operand):
+    """Search on list post_per_likes if post has 0 likes"""
 
     for i in list(likes_per_post):
         if i[list(i)[0]] == operand:
@@ -226,12 +226,12 @@ def _post_per_likes_serach(likes_per_post, operand):
 
 ###################### likelihood phase ##########################################################
 
-def is_final(metch_all_likes, zero_list_flag, users_list_holds_posts):
-    '''Is 2 final BOT flags, for all users raised?'''
+def is_final(match_all_likes, zero_list_flag, users_list_holds_posts):
+    """Is 2 final BOT flags, for all users raised?"""
 
-    is_final_status(metch_all_likes, zero_list_flag,users_list_holds_posts)
+    is_final_status(match_all_likes, zero_list_flag, users_list_holds_posts)
     for i in range(len(users)):
-        if not (metch_all_likes[i] or zero_list_flag[i]):
+        if not (match_all_likes[i] or zero_list_flag[i]):
             return False
     return True
 
@@ -239,14 +239,14 @@ def is_final(metch_all_likes, zero_list_flag, users_list_holds_posts):
 ###################### Print utility ############################################
 
 def print_userlist(list_of_users):
-    '''users after creation'''
+    """users after creation"""
     print('This is the list of users that created. Func-main')
     for i in list_of_users:
         print(f'user_id = {i.id}, user_email = {i.email}, likes to distribute: {i.number_of_likes}')
 
 
 def print_postlist(list_of_users):
-    '''users after post creation'''
+    """users after post creation"""
     print(f'users by their posts')
     for i in range(len(list_of_users)):
         print(f'user_id = {list_of_users[i].id}, total_posts =  {list_of_users[i].number_of_posts}, '
@@ -254,37 +254,44 @@ def print_postlist(list_of_users):
 
 
 def print_zerolist(list_of_users_holds_post_0likes, current_candidate):
-    '''users & post for users with at least 1 0 likes'''
+    """users & post for users with at least 1 0 likes"""
     print(
-        f'{new_line}The zero likes for user {current_candidate.id} is of {len(list_of_users_holds_post_0likes)} posts currently:{new_line}{list_of_users_holds_post_0likes}')
+        f'{new_line}The zero likes for user {current_candidate.id} '
+        f'is of {len(list_of_users_holds_post_0likes)} posts currently:{new_line}{list_of_users_holds_post_0likes}')
 
 
 def print_chosen_post_list(current_user, action_list, before=0):
-    '''chosen posts users & post out of for users with at least 1 0 likes list, by action'''
-    pass
-    '''
+    """chosen posts users & post out of for users with at least 1 0 likes list, by action"""
     if not before:
         print(
-            f'{new_line}Chosen posts list for user {current_user.id} by their likelihood action:{new_line}{action_list}')
+            f'{new_line}Chosen posts list for user {current_user.id} '
+            f'by their likelihood action:{new_line}{action_list}')
     else:
         print(f'{new_line}Chosen posts list for user {current_user.id} {before}:{new_line}{action_list}')
-    '''
+
 
 def print_user_total_likes_list(current_user):
-    '''chosen posts users & post out of for users with at least 1 0 likes list, by action'''
+    """chosen posts users & post out of for users with at least 1 0 likes list, by action"""
     print(
-        f'Totally, till now, {current_user.current_number_of_likes} likelihood actions taken out of total {current_user.number_of_likes} for user {current_user.id}. Func-main')
+        f'Totally, till now, {current_user.current_number_of_likes}'
+        f' likelihood actions taken out of total {current_user.number_of_likes} for user {current_user.id}. Func-main')
 
 
 def is_final_status(match, zero, users_list_holds_posts):
-    '''Status of Bot operation'''
-    print(f'Status of Bot operation: {new_line}user match his max likes:{match}, user has posts to like?{zero}')
+    """Status of Bot operation"""
+    print(f'Status of BOT operation:')
+    for i in range(len(match)):
+        print(f'For user:{users_list_holds_posts[i].id}: '
+              f'Is user match his max likes? :{match[i]}, whether '
+              f'user has posts for likelihood action? {zero[i]}')
 
 
 def status_msg(*args):
-    '''logging.info messages & a print status'''
+    """logging.info messages & a print status"""
     if args[0] == 'post':
         print(f'{new_line}Start Create post phase')
+    elif args[0] == 'new cycle':
+        print(f'{new_line}Verify status for new cycle')
     elif args[1] == 'like':
         logging.info(f'This is the list of posts to act, for {args[0]} user')
     elif args[1] == 'user':
@@ -307,12 +314,11 @@ def status_msg(*args):
         logging.info(f'post {args[0]}, found for like of user {args[1]} of obj {args[2]}')
 
 
-
 ###################### User Class ############################################
 
 # Handle User class
 class User:
-    ''' Handle user User class '''
+    """ Handle user User class """
 
     def __init__(self, email):
         self.number_of_posts = random.randint(1, max_posts_per_user)
@@ -325,8 +331,8 @@ class User:
     ###################### sign up  ############################################
 
     def sign_up(self):
-        ''' Connect to server and create new user '''
-        query_url = 'core/sign_up'
+        """ Connect to server and create new user """
+        query_url = 'trade/sign_up'
         origin_url = urljoin(URL, query_url)
 
         try:
@@ -345,7 +351,7 @@ class User:
                 elif response.content.decode('utf-8') != self.email or \
                         response.content.decode('utf-8').startswith('JWT code not created'):
 
-                    self.email, self.id = decode(response.text)
+                    self.email, self.id = _decode(response.text)
                     if self.id == -1:
                         raise CRITICAL_BET_ERROR('Mismatch between server and BOT')
 
@@ -363,13 +369,13 @@ class User:
 
     ###################### sign in  ############################################
 
-    def login(self, cond=''):
-        ''' Login to user '''
-        query_url = 'core/login'
+    def login(self):
+        """ Login to user """
+        query_url = 'trade/login'
 
         origin_url = urljoin(URL, query_url)
         try:
-            response = requests.post(origin_url, data=encode(self.email, self.id))
+            response = requests.post(origin_url, data=_encode(self.email, self.id))
 
             # Communication Status
             if response.status_code != 200:
@@ -389,8 +395,8 @@ class User:
     ###################### create post  ############################################
 
     def create_post(self):
-        ''' Creating post '''
-        query_url = 'core/create_post'
+        """ Creating post """
+        query_url = 'trade/create_post'
         origin_url = urljoin(URL, query_url)
 
         try:
@@ -420,8 +426,8 @@ class User:
     ###################### Synchronization posts&likes  ############################################
 
     def handle_likes_per_post(self, likelihood_obj, action, diff_likes=0):
-        ''' For any post item of user:post-> handle local repository-per post :
-            post_id:user_id , of user  '''
+        """ For any post item of user:post-> handle local repository-per post :
+            post_id:user_id , of user  """
         '''Adjust likes list of who liked post's user '''
         try:
             if action == 'add':
@@ -464,8 +470,9 @@ class User:
             return type(e).__name__
 
     def adjust_related_posts_or_likes(self, obj, current_item):
-        ''' Numerator update: posts number decremented if a creation in DB failed,
-            *current_likes* status appended/removed user_id new element to like as the likelihood activated'''
+        """ Numerator update: posts number decremented if a creation in DB failed,
+            *current_likes* status appended/removed user_id new element to like as the likelihood activated"""
+        response = False
         try:
             self.current_number_of_likes += 1
             '''retrieve likelihood instance and update likes per post numerator '''
@@ -490,8 +497,8 @@ class User:
     ###################### perform Likelihood operation  ############################################
 
     def do_like(self, item_to_like):
-        ''' Do like to chosen post '''
-        query_url = 'core/do_like'
+        """ Do like to chosen post """
+        query_url = 'trade/do_like'
         origin_url = urljoin(URL, query_url)
 
         try:
@@ -522,8 +529,8 @@ class User:
             return {e}
 
     def do_unlike(self, item_to_unlike):
-        ''' Do unlike to chosen post '''
-        query_url = 'core/do_unlike'
+        """ Do unlike to chosen post """
+        query_url = 'trade/do_unlike'
         origin_url = urljoin(URL, query_url)
 
         try:
