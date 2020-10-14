@@ -18,7 +18,7 @@ def main():
         ''' End of BOT action '''
         req_users = number_of_users
         if not req_users:
-            raise BOT_ERROR_FINISHED('No users to create')
+            raise BOT_FINISHED_ERROR('No users to create')
 
         if len(mail_bank_list) < req_users:
             logging.warning('list of available mails is too shorts. Func-main')
@@ -41,7 +41,7 @@ def main():
 
         ''' Error: short in created users '''
         if not users:
-            raise BOT_ERROR_FINISHED('No users to create')
+            raise BOT_FINISHED_ERROR('No users to create')
         elif len(users) < number_of_users:
             logging.warning('Did not create all required users. Func-main')
 
@@ -68,6 +68,7 @@ def main():
             if not current_user.login():
                 logging.warning(f'Failed to sign in  to user: {current_user.id}  . Func-main')
                 del current_user  # delete the instance of user
+                continue
             else:
                 while req_posts:
                     ''' Created posts for this user id  '''
@@ -85,12 +86,15 @@ def main():
 
                 if not post_num:
                     '''No posts, user deleted'''
+                    zero_list_flag.pop(users.index(current_user))
+                    match_all_likes.pop(users.index(current_user))
+                    users.remove(current_user)
                     del current_user
-                    zero_list_flag.remove(current_user)
-                    match_all_likes.remove(current_user)
-
                 else:
                     users_list_holds_posts.append(current_user)
+
+        if not users_list_holds_posts:
+            raise BOT_FINISHED_ERROR('Empty posts list')
 
         ''' Final users list created in DB (Server) '''
         print_postlist(users_list_holds_posts)
@@ -119,16 +123,18 @@ def main():
 
             for current_candidate in users_list_holds_posts:
 
-                '''' End of BOT action check & update status '''
-                if is_final(match_all_likes, zero_list_flag,users_list_holds_posts):
-                    raise BOT_FINISHED('No users with 0 likes left, or likes to do')
+                ''' User match all hus likes '''
+                if match_all_likes[users.index(current_candidate)]:
+                    continue
 
-                ''' Number of max Likes per user for this iteration '''
-                if not match_all_likes[users.index(current_candidate)]:
-                    '''For a user that did not natch his max likes'''
-                    print(f'WATCH',current_candidate.number_of_likes, current_candidate.current_number_of_likes)
-                    req_likes = random.randint(1, (
-                            current_candidate.number_of_likes - current_candidate.current_number_of_likes))
+                '''' End of BOT action check & update status '''
+                status_msg('new cycle')
+                if is_final(match_all_likes, zero_list_flag,users_list_holds_posts):
+                    raise BOT_FINISHED_NO_ERROR('No users with 0 likes left, or likes to do')
+
+                '''For a user that did not natch his max likes'''
+                req_likes = random.randint(1, (
+                    current_candidate.number_of_likes - current_candidate.current_number_of_likes))
 
                 '''Randomly 0 likes for this user at this iteration'''
                 if not req_likes:
@@ -147,7 +153,7 @@ def main():
                     zero_list_flag[users.index(current_candidate)] = True
                     status_msg(current_candidate, 'zero_list')
                     if is_final(match_all_likes, zero_list_flag,users_list_holds_posts):
-                        raise BOT_FINISHED('No users with 0 likes left, or likes to do')
+                        raise BOT_FINISHED_NO_ERROR('No users with 0 likes left, or likes to do')
                     continue
 
                 ''' Randomly draw posts out of zero list, Dividing the list by action: 
@@ -207,17 +213,17 @@ def main():
                         match_all_likes[users.index(current_candidate)] = True
                         status_msg(current_candidate,'match')
                         if is_final(match_all_likes, zero_list_flag,users_list_holds_posts):
-                            raise BOT_FINISHED('No users with 0 likes left, or likes to do')
+                            raise BOT_FINISHED_NO_ERROR('No users with 0 likes left, or likes to do')
 
-        raise BOT_FINISHED('All likes of all users distributed')
+        raise BOT_FINISHED_NO_ERROR('All likes of all users distributed')
         ###################### End of phase 3 - likes done ##########################################
 
-    except BOT_ERROR_FINISHED as e:
+    except BOT_FINISHED_ERROR as e:
         print(f'{e}. Func: main')
         print_chao('BOT Mission is finished....See you')
         return
 
-    except BOT_FINISHED as e:
+    except BOT_FINISHED_NO_ERROR as e:
         print(f'{e}. Func: main')
         print_chao('BOT Mission is finished....See you')
         return
