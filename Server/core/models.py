@@ -6,8 +6,8 @@ from datetime import datetime
 import logging
 
 
-my_hunter_api_key = '8d055603751cee376531897fc20c6eed251d00a4'
-clearbit.key = 'sk_c7bcabaeca810d36f425b01ec55c8aeb'
+my_hunter_api_key = #########
+clearbit.key = ###########
 
 
 class MISMATCH_BETWEEN_ENTITIES_ERROR(Exception):
