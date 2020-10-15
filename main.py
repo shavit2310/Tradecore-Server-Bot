@@ -2,7 +2,7 @@
 # ! Django 3.1.1
 
 from utilities import *
-
+'''Check GitHub'''
 
 def main():
     users_list_holds_posts = []  # list of users that posts where created for them
@@ -123,7 +123,7 @@ def main():
 
             for current_candidate in users_list_holds_posts:
 
-                ''' User match all hus likes '''
+                ''' User match all of his likes '''
                 if match_all_likes[users.index(current_candidate)]:
                     continue
 

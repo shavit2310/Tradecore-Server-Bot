@@ -9,12 +9,14 @@ import logging
 # my_hunter_api_key = '''NEED TO ADD ON CLONE'''
 # clearbit.key = '''NEED TO ADD ON CLONE'''
 
+my_hunter_api_key = '8d055603751cee376531897fc20c6eed251d00a4'
+clearbit.key = 'sk_c7bcabaeca810d36f425b01ec55c8aeb'
 
-class MISMATCH_BETWEEN_ENTITIES(Exception):
+class MISMATCH_BETWEEN_ENTITIES_ERROR(Exception):
     pass
 
 
-class NOT_UNIQUE(Exception):
+class NOT_UNIQUE_ERROR(Exception):
     pass
 
 
@@ -136,7 +138,7 @@ class Post(models.Model):
 
             '''Update user's posts_numerator'''
             if not post.user.inc_posts():
-                raise MISMATCH_BETWEEN_ENTITIES(
+                raise MISMATCH_BETWEEN_ENTITIES_ERROR(
                     f'Post {post.pk} saved but user number_of_posts in related user {user_obj.pk} did not ')
 
             return post.pk
@@ -181,11 +183,11 @@ class Like(models.Model):
 
             '''Update user's posts_numerator'''
             if not like.post_related_like.update_likes(1):
-                raise MISMATCH_BETWEEN_ENTITIES(
+                raise MISMATCH_BETWEEN_ENTITIES_ERROR(
                     f'Like {like.pk} saved but user number_of_posts in related user {post_related_like.pk} did not ')
 
             return like.pk
-        except MISMATCH_BETWEEN_ENTITIES as e:
+        except MISMATCH_BETWEEN_ENTITIES_ERROR as e:
             '''  disposal if on post_save works   '''
             like.delete()
             logging.warning(e)
@@ -202,7 +204,7 @@ class Like(models.Model):
             self.delete()
             '''Update user's posts_numerator'''
             if not self.post_related_like.update_likes(-1):
-                raise MISMATCH_BETWEEN_ENTITIES(
+                raise MISMATCH_BETWEEN_ENTITIES_ERROR(
                     f'Like {self.pk} saved but user number_of_posts in related user {self.post_related_like.pk} did not ')
 
             return True
@@ -216,6 +218,6 @@ class Like(models.Model):
         return self.like_text
     '''
     class Meta:
-        unique_together = [("user_related_like", "post_related_like")]
+        unique_together = [["user_related_like", "post_related_like]]
     '''
 
