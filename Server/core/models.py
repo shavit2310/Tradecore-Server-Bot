@@ -1,16 +1,14 @@
-#!/bin/python3
-
 import jwt
 import clearbit
 from django.db import models
 from pyhunter import PyHunter
+from datetime import datetime
 import logging
 
-# my_hunter_api_key = '''NEED TO ADD ON CLONE'''
-# clearbit.key = '''NEED TO ADD ON CLONE'''
 
-my_hunter_api_key = '8d055603751cee376531897fc20c6eed251d00a4'
-clearbit.key = 'sk_c7bcabaeca810d36f425b01ec55c8aeb'
+my_hunter_api_key = #########
+clearbit.key = ###########
+
 
 class MISMATCH_BETWEEN_ENTITIES_ERROR(Exception):
     pass
@@ -23,11 +21,11 @@ class NOT_UNIQUE_ERROR(Exception):
 # Handle general utilities
 
 def _mail_verification(mail):
-    '''Mail validation via hunter site'''
+    """Mail validation via hunter site"""
     try:
         hunter = PyHunter(my_hunter_api_key)
         user_data = hunter.email_verifier(mail)
-        # On riski & deliverable continue
+        # On risky & deliverable continue
         if user_data['result'] == 'undeliverable':
             raise Exception('Mail not approved')
         return user_data
@@ -36,10 +34,10 @@ def _mail_verification(mail):
         return {e}
 
 
-def _encode(mail, id):
-    ''' Encode JWT from user mail & user id'''
+def _encode(mail, user_id):
+    """ Encode JWT from user mail & user id"""
     try:
-        jwt_code = jwt.encode({mail: id}, 'secret', algorithm='HS256')
+        jwt_code = jwt.encode({mail: user_id}, 'secret', algorithm='HS256')
         if not jwt_code:
             raise Exception('JWT code not created')
 
@@ -50,10 +48,10 @@ def _encode(mail, id):
         return {e}
 
 
-def _decode(verif_code):
-    '''Decode JWT code to user mail & user id'''
+def _decode(verify_code):
+    """Decode JWT code to user mail & user id"""
     try:
-        jwt_code = jwt.decode(verif_code, 'secret', algorithms=['HS256'])
+        jwt_code = jwt.decode(verify_code, 'secret', algorithms=['HS256'])
         if not jwt_code:
             raise Exception('JWT code not encrypted')
 
@@ -67,13 +65,13 @@ def _decode(verif_code):
 
 # Handle users
 class User(models.Model):
-    fullname = models.CharField(max_length=100, default='Name_not_known')
+    fullname = models.CharField(max_length=50, default='Anonymous')
     email = models.EmailField(unique=True)
     number_of_posts = models.IntegerField(default=0)
 
     @classmethod
     def create(cls, email):
-        '''Create new user object in table'''
+        """Create new user object in table"""
         try:
             fullname = 'Anonymous'
 
@@ -88,136 +86,142 @@ class User(models.Model):
                         fullname = add_data['person']['name']['fullName']
                 else:
                     logging.warning('Clearbit data addition failed')
+
                 user = cls(email=email.decode('utf-8'), fullname=fullname)
                 user.save()
-                return _encode(user.email, user.id)
+                return _encode(user.email, user.pk)
 
         except Exception as e:
             logging.warning(e)
             return {e}
 
     def inc_posts(self):
-        ''' increment post numerator'''
+        """ increment post numerator"""
         try:
             self.number_of_posts += 1
             self.save()
 
-            return True
+            return self.number_of_posts
 
-        except Exception as e:
+        except MISMATCH_BETWEEN_ENTITIES_ERROR as e:
             logging.warning(f'User {self.number_of_posts} update error')
-            return False
+            return type(e).__name__
 
     def __str__(self):
-        return self.fullname
+        return f'{self.fullname} id {self.pk}'
 
 
-def get_user():
-    return User.objects.get(pk=1)
-
-
-# handle post : Relate many -> one to user
+# Handle posts
 class Post(models.Model):
-    post_text = models.CharField(max_length=150)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, default = get_user)
+    post_text = models.CharField(max_length=150, default='Empty')
+    users = models.ManyToManyField(
+        'User',
+        through='Like',
+    )
     number_of_likes = models.IntegerField(default=0)
-    #user = models.ManyToManyField("User", through='Like')
 
     @classmethod
-    def create(cls, user_obj):
-        '''Create new post object in table'''
+    def create(cls, user_id):
+        """Create new post object in table"""
         try:
-            post_text = f'Post number {user_obj.number_of_posts + 1} of user {user_obj.id} named: {user_obj.fullname}'
+            post = Post.objects.create()
 
-            post = cls(user=user_obj, post_text=post_text)
+            if post:
+                post.users.add(user_id)
+                post.post_text = f'Post number {user_id.inc_posts()} of user {user_id.pk}'
 
-            ''' Update user's posts_numerator when saving post '''
-            post.save()
-            if post.pk is None:
-                raise Exception('Post Can not be created')
-
-            '''Update user's posts_numerator'''
-            if not post.user.inc_posts():
-                raise MISMATCH_BETWEEN_ENTITIES_ERROR(
-                    f'Post {post.pk} saved but user number_of_posts in related user {user_obj.pk} did not ')
+                post.save()
+                if post is None:
+                    raise MISMATCH_BETWEEN_ENTITIES_ERROR(f'Like {post} saved but')
 
             return post.pk
 
+        except MISMATCH_BETWEEN_ENTITIES_ERROR as e:
+            if post:
+                post.delete()
+            logging.warning(f'{e},Post obj deleted, no mismatches')
+            return {f'{e},Post obj deleted, no mismatches'}
+
         except Exception as e:
-            post.delete()
             logging.warning(e)
-            return {e, f'Post obj deleted, no mismatches'}
+            return {e}
 
     def update_likes(self, diff):
-        '''update likes numerator for the post'''
+        """update likes numerator for the post"""
         try:
             self.number_of_likes += diff
             self.save()
 
-            return True
+            return self.number_of_likes
 
-        except Exception:
-            logging.warning(f'Post {self.number_of_likes} update error')
+        except Exception as e:
+            logging.warning(f'{e}, Post {self.number_of_likes} update error')
             return False
 
     def __str__(self):
         return self.post_text
 
+# Handle Likes
 
-# handle like: Relate many -> many to user, Relate many -> many to user
+
 class Like(models.Model):
-    like_text = models.CharField(max_length=150, default='Empty')
-    user_related_like = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    post_related_like = models.ForeignKey(Post, on_delete=models.CASCADE, null=True)
+    post_related = models.ForeignKey(Post, on_delete=models.CASCADE)
+    user_related = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_date = models.DateTimeField(default=datetime.now(), blank=True)
+    any_likes = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = [['user_related', 'post_related']]
 
     '''Do like'''
-
-    @classmethod
-    def create(cls, user_related_like, post_related_like):
-        '''Create new like object in table'''
+    def do_like(self):
+        flag = False                # Monitoring likes flag for mismatch updates
         try:
-            like_text = f'Like number {post_related_like.number_of_likes + 1} of {post_related_like.post_text}'
-
-            like = cls(user_related_like=user_related_like, post_related_like=post_related_like, like_text=like_text)
-            like.save()
+            if not self.any_likes:
+                self.any_likes = not self.any_likes
+                self.save()
+                flag = True
 
             '''Update user's posts_numerator'''
-            if not like.post_related_like.update_likes(1):
+            if not isinstance(self.post_related.update_likes(1), int):
                 raise MISMATCH_BETWEEN_ENTITIES_ERROR(
-                    f'Like {like.pk} saved but user number_of_posts in related user {post_related_like.pk} did not ')
+                    f'Unlike {self.pk} done, but mismatch on updating other tables')
 
-            return like.pk
+            return self.pk
+
         except MISMATCH_BETWEEN_ENTITIES_ERROR as e:
-            '''  disposal if on post_save works   '''
-            like.delete()
+            ''' Disposal if on post_save works '''
+            if flag:
+                self.any_likes = not self.any_likes
+                self.save()
             logging.warning(e)
-            return {e, f'like obj deleted, no mismatches'}
+            return {f'{e},like obj deleted, no mismatches'}
 
         except Exception as e:
-            '''  Did not create object, can be due to: unique constraints or communication   '''
+            ''' Did not perform action, can be due to: DB lock '''
             logging.warning(e)
             return {e}
 
     '''do_unlike'''
     def do_unlike(self):
+
         try:
-            self.delete()
+            num = self.post_related.update_likes(-1)
             '''Update user's posts_numerator'''
-            if not self.post_related_like.update_likes(-1):
-                raise MISMATCH_BETWEEN_ENTITIES_ERROR(
-                    f'Like {self.pk} saved but user number_of_posts in related user {self.post_related_like.pk} did not ')
+            if isinstance(num, int) and not num:
+                self.any_likes = not self.any_likes
+                self.save()
+            elif not isinstance(num, int):
+                return num
 
             return True
 
         except Exception as e:
+            ''' Did not perform action, can be due to: DB lock '''
             logging.warning(e)
-            return {type(e).__name__}
+            return {e}
 
     def __str__(self):
-        ''' Represent post text as the object'''
-        return self.like_text
-    '''
-    class Meta:
-        unique_together = [["user_related_like", "post_related_like]]
-    '''
-
+        """ Represent post text as the object"""
+        return (f'Like {self.pk} for {self.post_related}, '
+                f'which has in total {self.post_related.number_of_likes}')

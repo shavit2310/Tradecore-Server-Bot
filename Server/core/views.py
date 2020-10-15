@@ -6,10 +6,10 @@ from . import models
 
 
 def index(request):
-    '''For uploading the app'''
-    return HttpResponse('Hello, You''re at the social network of Trade_core Server.  '
+    '''Uploading the app'''
+    return HttpResponse('Hello, You are at the social network of Trade_core Server.  '
                         'You can go to Admin, by adding: /admin to url, or run BOT with specific action to perform in '
-                        'App core')
+                        'App trade')
 
 
 @csrf_exempt
@@ -29,7 +29,7 @@ def login(request):
         user_obj = models.User.objects.get(pk=op_id)
 
         if user_obj.pk != None and user_obj.email == op_mail:
-            response = user_obj
+            response = user_obj.pk
 
     return HttpResponse(response)
 
@@ -37,47 +37,40 @@ def login(request):
 @csrf_exempt
 def create_post(request):
     '''Create post'''
+    response = False
 
-    user = models.User.objects.get(pk=(request.body).decode('utf-8'))
-
-    # influence from segment issue error to resolve
-    if isinstance(user, models.User):
-        response = models.Post.create(user)
-    else:
-        response = user
+    user_obj = models.User.objects.get(pk=int(request.body.decode('utf-8')))
+    if user_obj:
+        response = models.Post.create(user_obj)
 
     return HttpResponse(response)
 
 
 @csrf_exempt
 def do_like(request):
-    '''Create Like - do like'''
+    ''' Do like'''
     res = False
 
-    op_like = (request.body).decode('utf-8').split('=')
-    # bring user  & post objects
-    user = models.User.objects.get(pk=op_like[0])
-    post = models.Post.objects.get(pk=op_like[1])
+    op_like = request.body.decode('utf-8').split('=')
+    like = models.Post.users.through.objects.get(user_related=op_like[0], post_related=op_like[1])
 
-    if isinstance(user, models.User) and isinstance(post, models.Post):
-        res = models.Like.create(user,post)
+    if isinstance(like, models.Like):
+        res = like.do_like()
 
     return HttpResponse(res)
 
 
 @csrf_exempt
 def do_unlike(request):
-    '''Delete Like - do unlike'''
+    ''' Do unlike'''
+    '''Create Like - do like'''
     res = False
 
-    op_unlike = (request.body).decode('utf-8').split('=')
-    # bring user  & post objects
-    user = models.User.objects.get(pk=op_unlike[0])
-    post = models.Post.objects.get(pk=op_unlike[1])
+    op_unlike = request.body.decode('utf-8').split('=')
+    unlike = models.Post.users.through.objects.get(user_related=op_unlike[0], post_related=op_unlike[1])
 
-    if isinstance(user, models.User) and isinstance(post, models.Post):
-        unlike = models.Like.objects.filter(user_related_like=user, post_related_like=post)
-        if isinstance(unlike[0], models.Like):
-            res = unlike[0].do_unlike()
+    if isinstance(unlike, models.Like):
+        res = unlike.do_unlike()
 
     return HttpResponse(res)
+

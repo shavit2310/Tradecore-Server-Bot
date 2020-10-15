@@ -69,7 +69,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
         'USER': 'admin',
-        'PASSWORD': 'CoreForTrade',
+        'PASSWORD': ########,
         'HOST': '127.0.0.1',
         'PORT': '8000',
         'ATOMIC_REQUESTS': True,

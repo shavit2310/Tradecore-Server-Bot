@@ -16,12 +16,10 @@ From main BOT->Phase I: Create users up to defined maximum, based on pre-prepere
 -Server
 Owns 3 entities: User, Post and Like. Each entity is considered as a table.
 
-Post entity holds a one-To-many relation  to the User table. Each user can have a lot of posts, each post connected only to one user.
+Post entity holds a many-To-many relation to the User table, through Like. Each user can have a lot of posts, each post connected only to one user.
 
-Like entity holds a many-To-many relation to both Post and User entities. Meaning:each user can have lots of likes to a lot of posts. 
+Like entity holds a many-To-many relation to both Post and User entities (implemented by FK). Meanning:each user can have lots of likes to a lot of posts. 
 Each like is unique to a {user_pk, post_pk} combination.
-
-There are some options to implent it. Attached 2 options.
 
 Detailes:
 User: 3 fields(properties) mail,fullname and no_of_related_posts. In the back there is an auto PK of id. 
@@ -29,16 +27,16 @@ Method of sign_in (create)- rollout 3 process: mail validation (via https://hunt
 Method of inc_posts, that executes when a new post added.
 In addition there are some administration utilities which handle the login, decode and encode of the JWT code. 
 
-Post: 3 fields(properties) user (FK to User), post_text, number of likes per post. In the back there is an auto PK of id.
+Post: 3 fields(properties) user (ManyToManyField to User with  through='Like'), post_text, number of likes per post. In the back there is an auto PK of id.
 Method create_post which enforces number_of_posts increment in User related class.
 In order to create a post, a user must login and authenticate via JWT code.
 
-Like: 3 fields(properties) user (FK to User), post(FK to Post),like_text. In the back there is an auto PK of id.
-Method of create_like (do_like), method of delete like(do_unlike) which enforces number_of_likes increment\decrement in Post related class.
-In order to create a post, a user must login and authenticate via JWT code.
-
-* On the second option of implementation, There is a usage of m2m field which controls by through.
-Still 3 Entities are maintain in order to hold an extra data for the Like entity. 
+Like: 4 fields(properties) user (FK to User), post(FK to Post) [with uniqu_together flag to verify only one "like" per post&user] and extra data of create_date and boolean_flag to sign that one like at least done. In the back there is an auto PK of id.
+Methods of create_like,  do_like and perform unlike. Likelihood action enforces number_of_likes increment\decrement in the related Post.
+* In order to create a post, a user must login and authenticate via JWT code.
+*On this implementation, There is a usage of m2m , and an extra related like data, which controls by through. The option to use only 2 tables is clear, 
+     but 3 Entities are maintain in order to give the opuronity to reveal an extra data on Likelihood action, as interval of time fro posted post by the 
+     count of like etc. Each like created on post creation, with a False flag. on do_like is set on, and on undo likw it sets off. From one hand it couse overloaded of like        instanses, which might not be in use. on the othe hand it open the utility to the user in advance and not on-the-spot. 
 
 * The administration function gives the ultimate service when a non-specific instance is operating. 
 
@@ -82,7 +80,7 @@ END:                  create                                         login      
 
 -Decisions & assumption:
 
-Permissions:    Delete from User or Post tables are restricted, only from Like entity permitted.
+Permissions:    Delete User Post or Like is not implemented. number of likes updated up and down to the limit of 0. 
                 No edit utility, to all entities.
     		          Create was granted to all 3. 
                 Admin user has all permissions, which operate via browser , by entering a user&password, which represented at setting.py doc.
@@ -105,4 +103,5 @@ Complexity:     Aspects of this issue leads to order the list of users & posts t
                 places to improve.
 
 Furthermore improvements:
-    -  A. improve Complexity. B. Rollback when commit is not performed completely. D. Uniform the logging-Exception handle. 
+    -  A. improve Complexity. B. Uniform the logging-Exception handle. C. Format DateTime field. D. This implementation divide the web activity by phases, which in
+       reality is not a clear division. The random likelihood operation can easily mplemented for the other 2 phases, on creating users and posts, in a mixture.
