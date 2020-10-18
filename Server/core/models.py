@@ -1,14 +1,9 @@
 import jwt
-import clearbit
 from django.db import models
 from pyhunter import PyHunter
 from datetime import datetime
 import logging
-
-
-my_hunter_api_key = '#########'
-clearbit.key = '###########'
-
+from . import keys
 
 
 class MISMATCH_BETWEEN_ENTITIES_ERROR(Exception):
