@@ -135,6 +135,7 @@ def choose_posts(list_of_users_op_to_like, current_candidate, current_max_likes=
     chosen_list = []
     action_list = []
 
+
     try:
         while current_max_likes and list_of_users_op_to_like:
             '''Zero list not empty and post list is not match likes required for  this iteration '''
@@ -142,11 +143,13 @@ def choose_posts(list_of_users_op_to_like, current_candidate, current_max_likes=
             if not (len(list_of_users_op_to_like) < 2):
                 '''Solve empty range for randrange() (0, 0, 0) '''
                 index = random.randint(1, len(list_of_users_op_to_like) - 1)
+            else:
+                index = 0
 
-                chosen_list.append(list_of_users_op_to_like[index])
+            chosen_list.append(list_of_users_op_to_like[index])
 
-                '''void post to be chosen more then once'''
-                list_of_users_op_to_like.pop(index)
+            '''void post to be chosen more then once'''
+            list_of_users_op_to_like.pop(index)
 
             current_max_likes -= 1
 
@@ -332,7 +335,7 @@ class User:
 
     def sign_up(self):
         """ Connect to server and create new user """
-        query_url = 'trade/sign_up'
+        query_url = 'core/sign_up'
         origin_url = urljoin(URL, query_url)
 
         try:
@@ -371,7 +374,7 @@ class User:
 
     def login(self):
         """ Login to user """
-        query_url = 'trade/login'
+        query_url = 'core/login'
 
         origin_url = urljoin(URL, query_url)
         try:
@@ -396,7 +399,7 @@ class User:
 
     def create_post(self):
         """ Creating post """
-        query_url = 'trade/create_post'
+        query_url = 'core/create_post'
         origin_url = urljoin(URL, query_url)
 
         try:
@@ -498,7 +501,7 @@ class User:
 
     def do_like(self, item_to_like):
         """ Do like to chosen post """
-        query_url = 'trade/do_like'
+        query_url = 'core/do_like'
         origin_url = urljoin(URL, query_url)
 
         try:
@@ -530,7 +533,7 @@ class User:
 
     def do_unlike(self, item_to_unlike):
         """ Do unlike to chosen post """
-        query_url = 'trade/do_unlike'
+        query_url = 'core/do_unlike'
         origin_url = urljoin(URL, query_url)
 
         try:

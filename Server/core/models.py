@@ -6,8 +6,9 @@ from datetime import datetime
 import logging
 
 
-my_hunter_api_key = #########
-clearbit.key = ###########
+my_hunter_api_key = '#########'
+clearbit.key = '###########'
+
 
 
 class MISMATCH_BETWEEN_ENTITIES_ERROR(Exception):
@@ -223,5 +224,4 @@ class Like(models.Model):
 
     def __str__(self):
         """ Represent post text as the object"""
-        return (f'Like {self.pk} for {self.post_related}, '
-                f'which has in total {self.post_related.number_of_likes}')
+        return (f'Like {self.pk} for {self.post_related}')
