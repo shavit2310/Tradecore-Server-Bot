@@ -3,8 +3,7 @@ from django.db import models
 from pyhunter import PyHunter
 from datetime import datetime
 import logging
-from . import keys
-
+from . import keys_tokens
 
 class MISMATCH_BETWEEN_ENTITIES_ERROR(Exception):
     pass
