@@ -1,4 +1,4 @@
-# BOT-SERVER-TRADECORE
+# Bot: Server Tradecore
  
 2 components in TradeCore system:
 1. BOT written  in Python 2. Rest Api SERVER based on Django framework.
