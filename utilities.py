@@ -16,10 +16,10 @@ def print_chao(name):
 
 ###################### JWT related functions ###############################
 
-def _decode(verif_code):
+def _decode(verify_code):
     """ Decode JWT code to user mail & user id """
     try:
-        jwt_code = jwt.decode(verif_code, 'secret', algorithms=['HS256'])
+        jwt_code = jwt.decode(verify_code, 'secret', algorithms=['HS256'])
         if not jwt_code:
             raise Exception('JWT code not encrypted')
 
@@ -44,7 +44,7 @@ def _encode(mail, user_id):
         return {e}
 
 
-###################### Produce the posts list for likelihood phase ###############################
+# Produce the posts list for likelihood phase ###############################
 
 # Produce users with at least 1 post with 0 likes ###############################
 
@@ -72,7 +72,7 @@ def zero_post(list_op_likes, current_candidate):
             users_list_holds_posts = users_list_holds_posts + posts_per_user
 
         logging.info(f'List of all user_, post_id')
-        print_zerolist(users_list_holds_posts, current_candidate)
+        print_zero_list(users_list_holds_posts, current_candidate)
         return users_list_holds_posts
 
     except Exception as e:
@@ -135,7 +135,6 @@ def choose_posts(list_of_users_op_to_like, current_candidate, current_max_likes=
     chosen_list = []
     action_list = []
 
-
     try:
         while current_max_likes and list_of_users_op_to_like:
             '''Zero list not empty and post list is not match likes required for  this iteration '''
@@ -190,8 +189,8 @@ def _divide_by_action(chosen_posts_list, current_candidate):
             else:
                 action_key = dict.fromkeys(['like'], 0)
 
-            action_list.append(action_key)  # Exmp: [{unlike}:{683:0}]
-            '''Handle the 'value' of dictionary '''  # Exmp: [{unlike}:{683:[5:76,8:7,9:88]}]
+            action_list.append(action_key)  # Example: [{unlike}:{683:0}]
+            '''Handle the 'value' of dictionary '''  # Example: [{unlike}:{683:[5:76,8:7,9:88]}]
             action_list[chosen_post][list(action_list[chosen_post])[0]] = chosen_posts_list[chosen_post]
 
         return action_list
@@ -239,16 +238,16 @@ def is_final(match_all_likes, zero_list_flag, users_list_holds_posts):
     return True
 
 
-###################### Print utility ############################################
+# Print utility ############################################
 
-def print_userlist(list_of_users):
+def print_user_list(list_of_users):
     """users after creation"""
     print('This is the list of users that created. Func-main')
     for i in list_of_users:
         print(f'user_id = {i.id}, user_email = {i.email}, likes to distribute: {i.number_of_likes}')
 
 
-def print_postlist(list_of_users):
+def print_post_list(list_of_users):
     """users after post creation"""
     print(f'users by their posts')
     for i in range(len(list_of_users)):
@@ -256,7 +255,7 @@ def print_postlist(list_of_users):
               f'list of user_posts ={list_of_users[i].post_per_likes_list}')
 
 
-def print_zerolist(list_of_users_holds_post_0likes, current_candidate):
+def print_zero_list(list_of_users_holds_post_0likes, current_candidate):
     """users & post for users with at least 1 0 likes"""
     print(
         f'{new_line}The zero likes for user {current_candidate.id} '
@@ -317,7 +316,7 @@ def status_msg(*args):
         logging.info(f'post {args[0]}, found for like of user {args[1]} of obj {args[2]}')
 
 
-###################### User Class ############################################
+# User Class ############################################
 
 # Handle User class
 class User:
@@ -331,7 +330,7 @@ class User:
         self.post_per_likes_list = []  # list of dict post_id : num_likes. num_likes is 0 or 1
         self.current_number_of_likes = 0
 
-    ###################### sign up  ############################################
+    # sign up  ############################################
 
     def sign_up(self):
         """ Connect to server and create new user """
@@ -370,7 +369,7 @@ class User:
             logging.warning(f'{e}. Func: sign up')
             return False
 
-    ###################### sign in  ############################################
+    # sign in  ############################################
 
     def login(self):
         """ Login to user """
@@ -395,7 +394,7 @@ class User:
             logging.critical(f'{e}. Func: login')
             return False
 
-    ###################### create post  ############################################
+    # create post  ############################################
 
     def create_post(self):
         """ Creating post """
@@ -426,7 +425,7 @@ class User:
             logging.warning(f'{e}. Func: create post')
             return {e}
 
-    ###################### Synchronization posts&likes  ############################################
+    # Synchronization posts&likes  ############################################
 
     def handle_likes_per_post(self, likelihood_obj, action, diff_likes=0):
         """ For any post item of user:post-> handle local repository-per post :
@@ -497,7 +496,7 @@ class User:
             logging.critical(f'{e}. Func: adjust related posts')
             return type(e).__name__
 
-    ###################### perform Likelihood operation  ############################################
+    # perform Likelihood operation  ############################################
 
     def do_like(self, item_to_like):
         """ Do like to chosen post """
