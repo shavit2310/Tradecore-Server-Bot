@@ -2,7 +2,6 @@
 # ! Django 3.1.1
 
 from utilities import *
-'''Check GitHub'''
 
 def main():
     users_list_holds_posts = []  # list of users that posts where created for them
