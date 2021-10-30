@@ -11,7 +11,7 @@ def main():
     print_chao('Welcome to Bot')
 
     try:
-        ###################### Phase 1: Sign up users #######################################
+        # Phase 1: Sign up users #######################################
         '''Stop condition:  2 options:
         1. Reaches max users required. 2. Finish all mails from mail_bank_list  '''
 
@@ -99,9 +99,9 @@ def main():
         ''' Final users list created in DB (Server) '''
         print_postlist(users_list_holds_posts)
 
-        ###################### End of phase 2 - posts creation ### ###########################
+        # End of phase 2 - posts creation ### ############################
 
-        ###################### Phase 3: Do likes under ruls instructions ######################
+        # Phase 3: Do likes under ruls instructions ######################
 
         '''Stop condition: in 3 options:
         1. No user with 0 likes to one post at least . 2. All  users reached their max likes'''
@@ -190,7 +190,7 @@ def main():
                                     f'Mismatch between users likes numerator for {current_candidate.id} and likes per '
                                     f'post to user: {list(current_action)[0]} in BOT and between server\DB and BOT. '
                                     f'Func-main')
-                            elif likelihood_obj == True:
+                            elif likelihood_obj:
                                 '''Set End BOT flag'''
                                 zero_list_flag = [
                                     False if users_list_holds_posts.index(current_candidate) != j else True for j in
@@ -216,7 +216,7 @@ def main():
                             raise BOT_FINISHED_NO_ERROR('No users with 0 likes left, or likes to do')
 
         raise BOT_FINISHED_NO_ERROR('All likes of all users distributed')
-        ###################### End of phase 3 - likes done ##########################################
+        # End of phase 3 - likes done ##########################################
 
     except BOT_FINISHED_ERROR as e:
         print(f'{e}. Func: main')
